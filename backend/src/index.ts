@@ -9,6 +9,8 @@ import { connectMongo } from "./db/connect.js";
 import { getOrCreateRoom, roomCount } from "./raceRoom.js";
 
 const PORT = Number(process.env.PORT) || 4000;
+/** `0.0.0.0` = LAN / network se bhi suno (default). Sirf localhost chahiye ho to `HOST=127.0.0.1` */
+const HOST = process.env.HOST ?? "0.0.0.0";
 
 const app = express();
 app.use(cors());
@@ -57,9 +59,12 @@ server.on("upgrade", (request, socket, head) => {
 async function main() {
   await connectMongo(process.env.MONGODB_URI);
 
-  server.listen(PORT, () => {
-    console.log(`[express] http://localhost:${PORT}`);
+  server.listen(PORT, HOST, () => {
+    console.log(`[express] http://${HOST === "0.0.0.0" ? "localhost" : HOST}:${PORT} (bind ${HOST})`);
     console.log(`[ws]      ws://localhost:${PORT}/api/race-room/:roomId`);
+    if (HOST === "0.0.0.0") {
+      console.log("[hint] LAN par dusri device se: PC ka IP same port — ya sirf frontend `npm run dev:lan` use karo");
+    }
   });
 }
 

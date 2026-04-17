@@ -9,6 +9,8 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 export default defineConfig({
   vite: {
     server: {
+      /** Same Wi‑Fi / LAN se open: `http://<PC-ka-IP>:port` (terminal mein “Network” line dikhegi) */
+      host: true,
       proxy: {
         // `backend/` Express + ws (see backend/README.md) — run `npm run backend:dev` on 4000
         "/api/race-room": {
