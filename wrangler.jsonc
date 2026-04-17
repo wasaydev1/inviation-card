@@ -3,5 +3,9 @@
   "name": "tanstack-start-app",
   "compatibility_date": "2025-09-24",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry",
+  "main": "src/worker.ts",
+  "durable_objects": {
+    "bindings": [{ "name": "RACE_ROOMS", "class_name": "RaceRoom" }]
+  },
+  "migrations": [{ "tag": "race-rooms-v1", "new_classes": ["RaceRoom"] }]
 }

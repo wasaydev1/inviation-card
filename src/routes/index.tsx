@@ -129,6 +129,12 @@ function Features() {
 function ModesSection() {
   const modes = [
     { name: "Race", desc: "Head-to-head against bots and rivals.", to: "/race", tag: "Live" },
+    {
+      name: "Friend race",
+      desc: "Invite a link and duel 1v1 with a synced countdown.",
+      to: "/multiplayer",
+      tag: "Invite",
+    },
     { name: "Practice", desc: "Drill speed, accuracy, and consistency.", to: "/practice", tag: "Solo" },
     { name: "Leaderboard", desc: "Climb the global rankings.", to: "/leaderboard", tag: "Ranked" },
   ] as const;
@@ -137,7 +143,7 @@ function ModesSection() {
       <div className="flex items-end justify-between mb-8">
         <h2 className="font-display text-3xl md:text-5xl font-black">Choose your mode.</h2>
       </div>
-      <div className="grid md:grid-cols-3 gap-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {modes.map((m) => (
           <Link
             key={m.name}

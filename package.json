@@ -9,7 +9,10 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "backend:dev": "npm run dev --prefix backend",
+    "backend:install": "npm install --prefix backend",
+    "backend:build": "npm run build --prefix backend"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",

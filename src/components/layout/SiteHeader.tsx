@@ -10,11 +10,18 @@ export function SiteHeader() {
         </Link>
         <nav className="hidden md:flex items-center gap-1 text-sm">
           <NavLink to="/race">Race</NavLink>
+          <NavLink to="/multiplayer">Friend race</NavLink>
           <NavLink to="/practice">Practice</NavLink>
           <NavLink to="/leaderboard">Leaderboard</NavLink>
           <NavLink to="/profile">Profile</NavLink>
         </nav>
         <div className="ml-auto flex items-center gap-2">
+          <Link
+            to="/multiplayer"
+            className="hidden sm:inline-flex items-center justify-center rounded-lg border border-border bg-surface/60 backdrop-blur font-semibold px-4 py-2 text-sm hover:bg-surface transition"
+          >
+            Invite friend
+          </Link>
           <Link
             to="/race"
             className="inline-flex items-center justify-center rounded-lg bg-gradient-primary text-primary-foreground font-semibold px-4 py-2 text-sm glow-cyan hover:opacity-90 transition"

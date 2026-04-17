@@ -6,4 +6,17 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-export default defineConfig();
+export default defineConfig({
+  vite: {
+    server: {
+      proxy: {
+        // `backend/` Express + ws (see backend/README.md) — run `npm run backend:dev` on 4000
+        "/api/race-room": {
+          target: "http://127.0.0.1:4000",
+          changeOrigin: true,
+          ws: true,
+        },
+      },
+    },
+  },
+});

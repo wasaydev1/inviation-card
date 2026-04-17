@@ -14,6 +14,8 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PracticeRouteImport } from './routes/practice'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MultiplayerIndexRouteImport } from './routes/multiplayer/index'
+import { Route as MultiplayerRoomIdRouteImport } from './routes/multiplayer/$roomId'
 
 const RaceRoute = RaceRouteImport.update({
   id: '/race',
@@ -40,6 +42,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MultiplayerIndexRoute = MultiplayerIndexRouteImport.update({
+  id: '/multiplayer/',
+  path: '/multiplayer/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MultiplayerRoomIdRoute = MultiplayerRoomIdRouteImport.update({
+  id: '/multiplayer/$roomId',
+  path: '/multiplayer/$roomId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +59,8 @@ export interface FileRoutesByFullPath {
   '/practice': typeof PracticeRoute
   '/profile': typeof ProfileRoute
   '/race': typeof RaceRoute
+  '/multiplayer/$roomId': typeof MultiplayerRoomIdRoute
+  '/multiplayer/': typeof MultiplayerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +68,8 @@ export interface FileRoutesByTo {
   '/practice': typeof PracticeRoute
   '/profile': typeof ProfileRoute
   '/race': typeof RaceRoute
+  '/multiplayer/$roomId': typeof MultiplayerRoomIdRoute
+  '/multiplayer': typeof MultiplayerIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +78,37 @@ export interface FileRoutesById {
   '/practice': typeof PracticeRoute
   '/profile': typeof ProfileRoute
   '/race': typeof RaceRoute
+  '/multiplayer/$roomId': typeof MultiplayerRoomIdRoute
+  '/multiplayer/': typeof MultiplayerIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/leaderboard' | '/practice' | '/profile' | '/race'
+  fullPaths:
+    | '/'
+    | '/leaderboard'
+    | '/practice'
+    | '/profile'
+    | '/race'
+    | '/multiplayer/$roomId'
+    | '/multiplayer/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/leaderboard' | '/practice' | '/profile' | '/race'
-  id: '__root__' | '/' | '/leaderboard' | '/practice' | '/profile' | '/race'
+  to:
+    | '/'
+    | '/leaderboard'
+    | '/practice'
+    | '/profile'
+    | '/race'
+    | '/multiplayer/$roomId'
+    | '/multiplayer'
+  id:
+    | '__root__'
+    | '/'
+    | '/leaderboard'
+    | '/practice'
+    | '/profile'
+    | '/race'
+    | '/multiplayer/$roomId'
+    | '/multiplayer/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +117,8 @@ export interface RootRouteChildren {
   PracticeRoute: typeof PracticeRoute
   ProfileRoute: typeof ProfileRoute
   RaceRoute: typeof RaceRoute
+  MultiplayerRoomIdRoute: typeof MultiplayerRoomIdRoute
+  MultiplayerIndexRoute: typeof MultiplayerIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,6 +158,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/multiplayer/': {
+      id: '/multiplayer/'
+      path: '/multiplayer'
+      fullPath: '/multiplayer/'
+      preLoaderRoute: typeof MultiplayerIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/multiplayer/$roomId': {
+      id: '/multiplayer/$roomId'
+      path: '/multiplayer/$roomId'
+      fullPath: '/multiplayer/$roomId'
+      preLoaderRoute: typeof MultiplayerRoomIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,7 +181,18 @@ const rootRouteChildren: RootRouteChildren = {
   PracticeRoute: PracticeRoute,
   ProfileRoute: ProfileRoute,
   RaceRoute: RaceRoute,
+  MultiplayerRoomIdRoute: MultiplayerRoomIdRoute,
+  MultiplayerIndexRoute: MultiplayerIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
