@@ -1,5 +1,6 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 
+import { InviteFriendProvider } from "@/components/layout/InviteFriendContext";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -65,5 +66,9 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  return <Outlet />;
+  return (
+    <InviteFriendProvider>
+      <Outlet />
+    </InviteFriendProvider>
+  );
 }

@@ -44,3 +44,15 @@ export function generateRoomId(): string {
   for (let i = 0; i < 8; i++) out += chars[bytes[i]! % chars.length];
   return out;
 }
+
+/** Same rule as WebSocket room validation */
+export const ROOM_CODE_PATTERN = /^[a-zA-Z0-9_-]{4,32}$/;
+
+/** `/multiplayer/abc123` → `abc123`; lobby `/multiplayer` → null */
+export function parseMultiplayerRoomFromPath(pathname: string): string | null {
+  const path = pathname.replace(/\/+$/, "") || "/";
+  const m = /^\/multiplayer\/([^/]+)$/.exec(path);
+  if (!m) return null;
+  const id = decodeURIComponent(m[1]);
+  return ROOM_CODE_PATTERN.test(id) ? id : null;
+}

@@ -1,6 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Check, Copy, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { RaceTrack } from "@/components/typing/RaceTrack";
 import { StatsBar } from "@/components/typing/StatsBar";
 import { TypingDisplay } from "@/components/typing/TypingDisplay";
@@ -8,6 +18,8 @@ import { useTypingEngine } from "@/hooks/use-typing-engine";
 import type { LiveRaceSync } from "@/lib/live-race";
 import { raceRoomWsUrl } from "@/lib/live-race";
 import { getStats, recordRace } from "@/lib/storage";
+import { copyTextToClipboard } from "@/lib/clipboard";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/multiplayer/$roomId")({
   head: () => ({
@@ -27,6 +39,9 @@ function LiveRoomPage() {
     "connecting",
   );
   const [recorded, setRecorded] = useState(false);
+  const [inviteCopied, setInviteCopied] = useState(false);
+  /** Hide win/lose popup until next race (reset when phase leaves `done`) */
+  const [resultPopupDismissed, setResultPopupDismissed] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const username = getStats().username;
 
@@ -111,6 +126,34 @@ function LiveRoomPage() {
     setRecorded(true);
   }, [phase, metrics.isFinished, metrics.wpm, metrics.accuracy, recorded, sync?.players, myId]);
 
+  useEffect(() => {
+    if (phase !== "done") setResultPopupDismissed(false);
+  }, [phase]);
+
+  const raceOutcome = useMemo(() => {
+    if (phase !== "done" || !sync?.players?.length || !myId) return null;
+    const me = sync.players.find((p) => p.id === myId);
+    const opp = sync.players.find((p) => p.id !== myId);
+    if (!me || !opp) return null;
+    const bothFinished = me.finished && opp.finished;
+    if (bothFinished && me.wpm === opp.wpm) {
+      return { kind: "tie" as const, myWpm: me.wpm, oppWpm: opp.wpm, oppName: opp.name };
+    }
+    if (me.finished && !opp.finished) {
+      return { kind: "win" as const, myWpm: me.wpm, oppWpm: opp.wpm, oppName: opp.name };
+    }
+    if (!me.finished && opp.finished) {
+      return { kind: "lose" as const, myWpm: me.wpm, oppWpm: opp.wpm, oppName: opp.name };
+    }
+    if (bothFinished) {
+      if (me.wpm > opp.wpm) {
+        return { kind: "win" as const, myWpm: me.wpm, oppWpm: opp.wpm, oppName: opp.name };
+      }
+      return { kind: "lose" as const, myWpm: me.wpm, oppWpm: opp.wpm, oppName: opp.name };
+    }
+    return { kind: "lose" as const, myWpm: me.wpm, oppWpm: opp.wpm, oppName: opp.name };
+  }, [phase, sync?.players, myId]);
+
   const sendReady = useCallback(() => {
     wsRef.current?.send(JSON.stringify({ type: "ready" }));
   }, []);
@@ -118,12 +161,29 @@ function LiveRoomPage() {
   const sendRematch = useCallback(() => {
     wsRef.current?.send(JSON.stringify({ type: "rematch" }));
     setRecorded(false);
+    setResultPopupDismissed(true);
   }, []);
 
-  const copyInvite = useCallback(() => {
-    const link = `${window.location.origin}/multiplayer/${roomId}`;
-    void navigator.clipboard.writeText(link);
+  const showRaceResultPopup = phase === "done" && !!raceOutcome && !resultPopupDismissed;
+
+  const inviteLink = useMemo(() => {
+    if (typeof window === "undefined") return "";
+    return `${window.location.origin}/multiplayer/${encodeURIComponent(roomId)}`;
   }, [roomId]);
+
+  const copyInvite = useCallback(async () => {
+    if (!inviteLink) return;
+    const ok = await copyTextToClipboard(inviteLink);
+    if (ok) {
+      setInviteCopied(true);
+      window.setTimeout(() => setInviteCopied(false), 2500);
+    }
+  }, [inviteLink]);
+
+  const meInSync = useMemo(() => sync?.players?.find((p) => p.id === myId), [sync?.players, myId]);
+  const opponentInSync = useMemo(() => sync?.players?.find((p) => p.id !== myId), [sync?.players, myId]);
+  const imReady = !!meInSync?.ready;
+  const opponentReady = !!opponentInSync?.ready;
 
   const racers = useMemo(() => {
     const players = sync?.players ?? [];
@@ -133,8 +193,17 @@ function LiveRoomPage() {
       progress: p.progress,
       color: colors[i % 2]!,
       isPlayer: p.id === myId,
+      lobbyReady: phase === "lobby" ? p.ready : undefined,
     }));
-  }, [sync?.players, myId]);
+  }, [sync?.players, myId, phase]);
+
+  const readyBtnLabel = (() => {
+    const n = sync?.players?.length ?? 0;
+    if (n < 2) return "Waiting for friend…";
+    if (imReady && !opponentReady) return "You're ready · matching…";
+    if (imReady && opponentReady) return "Starting…";
+    return "Ready";
+  })();
 
   const typingEnabled = phase === "racing" && !!raceText && !metrics.isFinished;
   const countdown = sync?.countdown;
@@ -148,9 +217,72 @@ function LiveRoomPage() {
           ? "Connection error"
           : "Disconnected";
 
+  const opponentWonLabel =
+    raceOutcome?.oppName.trim().toLowerCase() === "guest" ? "Guest won!" : `${raceOutcome?.oppName ?? "Opponent"} won!`;
+
   return (
     <div className="min-h-screen">
       <SiteHeader />
+      <Dialog
+        open={showRaceResultPopup}
+        onOpenChange={(o) => {
+          if (!o) setResultPopupDismissed(true);
+        }}
+      >
+        <DialogContent className="sm:max-w-md border-border bg-background text-center">
+          <DialogHeader className="text-center sm:text-center space-y-3">
+            {raceOutcome?.kind === "tie" && (
+              <>
+                <DialogTitle className="font-display text-3xl md:text-4xl font-black text-neon-amber">
+                  It&apos;s a tie!
+                </DialogTitle>
+                <DialogDescription className="text-base text-muted-foreground">
+                  Same WPM · You {raceOutcome.myWpm} — Them {raceOutcome.oppWpm}
+                </DialogDescription>
+              </>
+            )}
+            {raceOutcome?.kind === "win" && (
+              <>
+                <DialogTitle className="font-display text-3xl md:text-4xl font-black text-gradient-primary">
+                  You won!
+                </DialogTitle>
+                <DialogDescription className="text-base text-muted-foreground">
+                  {raceOutcome.myWpm} WPM vs {raceOutcome.oppName}&apos;s {raceOutcome.oppWpm}
+                </DialogDescription>
+              </>
+            )}
+            {raceOutcome?.kind === "lose" && (
+              <>
+                <DialogTitle className="font-display text-3xl md:text-4xl font-black text-neon-magenta">
+                  {opponentWonLabel}
+                </DialogTitle>
+                <DialogDescription className="text-base text-muted-foreground">
+                  You {raceOutcome.myWpm} WPM · {raceOutcome.oppName} {raceOutcome.oppWpm} WPM
+                </DialogDescription>
+              </>
+            )}
+          </DialogHeader>
+          <DialogFooter className="flex-col gap-2 sm:flex-col">
+            <Button
+              type="button"
+              className="w-full glow-cyan bg-gradient-primary text-primary-foreground font-bold"
+              onClick={() => setResultPopupDismissed(true)}
+            >
+              Continue
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                sendRematch();
+              }}
+            >
+              Rematch
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <main className="max-w-5xl mx-auto px-4 md:px-6 py-8 md:py-12 space-y-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
@@ -163,10 +295,27 @@ function LiveRoomPage() {
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={copyInvite}
-              className="rounded-lg border border-border bg-surface/60 backdrop-blur px-4 py-2 text-sm font-semibold hover:bg-surface transition"
+              onClick={() => void copyInvite()}
+              title={inviteLink || undefined}
+              aria-label={inviteCopied ? "Link copied" : "Copy invite link to clipboard"}
+              className={cn(
+                "inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition",
+                inviteCopied
+                  ? "border-neon-lime/50 bg-neon-lime/10 text-neon-lime"
+                  : "border-border bg-surface/60 backdrop-blur hover:bg-surface",
+              )}
             >
-              Copy invite link
+              {inviteCopied ? (
+                <>
+                  <Check className="h-4 w-4 shrink-0" strokeWidth={2.5} />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy className="h-4 w-4 shrink-0 opacity-80" />
+                  Copy invite link
+                </>
+              )}
             </button>
             <Link
               to="/multiplayer"
@@ -179,15 +328,65 @@ function LiveRoomPage() {
 
         <RaceTrack racers={racers} />
 
+        {phase === "lobby" && (sync?.players?.length ?? 0) >= 2 && (
+          <div className="rounded-xl border border-border/80 bg-surface/50 backdrop-blur px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div className="text-[10px] uppercase tracking-widest text-muted-foreground w-full sm:w-auto">
+              Match status
+            </div>
+            <div className="flex flex-1 items-center justify-center gap-2 sm:gap-4 min-w-0">
+              <div
+                className={cn(
+                  "flex items-center gap-2 rounded-lg px-3 py-2 border text-sm font-medium transition-colors",
+                  imReady
+                    ? "border-neon-lime/50 bg-neon-lime/10 text-neon-lime"
+                    : "border-border bg-background/40 text-muted-foreground",
+                )}
+              >
+                You
+                {imReady ? <Check className="h-4 w-4" strokeWidth={2.5} /> : null}
+              </div>
+              <div className="flex flex-col items-center gap-0.5 text-muted-foreground shrink-0">
+                <div className="h-px w-8 sm:w-14 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+                <span className="text-[9px] uppercase tracking-widest">vs</span>
+              </div>
+              <div
+                className={cn(
+                  "flex items-center gap-2 rounded-lg px-3 py-2 border text-sm font-medium transition-colors max-w-[44%] sm:max-w-none",
+                  opponentReady
+                    ? "border-neon-magenta/50 bg-neon-magenta/10 text-neon-magenta"
+                    : "border-border bg-background/40 text-muted-foreground",
+                )}
+              >
+                <span className="truncate font-mono">{opponentInSync?.name ?? "Opponent"}</span>
+                {opponentReady ? (
+                  <Check className="h-4 w-4 shrink-0" strokeWidth={2.5} />
+                ) : (
+                  <Loader2 className="h-4 w-4 shrink-0 animate-spin opacity-60" />
+                )}
+              </div>
+            </div>
+            {imReady && !opponentReady && (
+              <p className="w-full sm:w-auto text-xs text-muted-foreground text-center sm:text-right">
+                Waiting for opponent to press Ready — then countdown starts.
+              </p>
+            )}
+          </div>
+        )}
+
         <div className="flex flex-wrap items-center gap-3">
           {phase === "lobby" && (
             <button
               type="button"
               onClick={sendReady}
-              disabled={wsState !== "open" || !myId || (sync?.players?.length ?? 0) < 2}
-              className="rounded-xl bg-gradient-primary text-primary-foreground font-bold px-6 py-3 glow-lime hover:opacity-90 transition disabled:opacity-40"
+              disabled={
+                wsState !== "open" ||
+                !myId ||
+                (sync?.players?.length ?? 0) < 2 ||
+                imReady
+              }
+              className="rounded-xl bg-gradient-primary text-primary-foreground font-bold px-6 py-3 glow-lime hover:opacity-90 transition disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {(sync?.players?.length ?? 0) < 2 ? "Waiting for friend…" : "Ready"}
+              {readyBtnLabel}
             </button>
           )}
           {phase === "done" && (

@@ -3,6 +3,8 @@ interface Racer {
   progress: number; // 0..1
   isPlayer?: boolean;
   color: "cyan" | "magenta" | "lime" | "amber";
+  /** Lobby only: show ready lock-in next to name */
+  lobbyReady?: boolean;
 }
 
 interface Props {
@@ -42,12 +44,24 @@ function Lane({ racer }: { racer: Racer }) {
 
   return (
     <div className="relative h-12 rounded-lg bg-background/50 border border-border/60 overflow-hidden">
-      <div className="absolute inset-y-0 left-0 right-0 flex items-center px-3 text-xs uppercase tracking-widest text-muted-foreground/70">
-        <span className="font-mono">{racer.name}</span>
+      <div className="absolute inset-y-0 left-0 right-0 flex items-center px-3 text-xs uppercase tracking-widest text-muted-foreground/70 gap-2">
+        <span className="font-mono truncate">{racer.name}</span>
         {racer.isPlayer && (
-          <span className="ml-2 px-1.5 py-0.5 rounded bg-primary/20 text-primary text-[10px]">YOU</span>
+          <span className="shrink-0 px-1.5 py-0.5 rounded bg-primary/20 text-primary text-[10px]">YOU</span>
         )}
-        <span className="ml-auto font-mono">{Math.round(racer.progress * 100)}%</span>
+        {typeof racer.lobbyReady === "boolean" && (
+          <span
+            className={
+              "shrink-0 ml-1 text-[10px] font-semibold normal-case tracking-normal px-1.5 py-0.5 rounded " +
+              (racer.lobbyReady
+                ? "bg-neon-lime/20 text-neon-lime border border-neon-lime/40"
+                : "bg-muted/40 text-muted-foreground border border-border/60")
+            }
+          >
+            {racer.lobbyReady ? "Ready" : "..."}
+          </span>
+        )}
+        <span className="ml-auto font-mono shrink-0">{Math.round(racer.progress * 100)}%</span>
       </div>
       <div
         className="absolute top-1/2 -translate-y-1/2 transition-[left] duration-200 ease-linear text-2xl"

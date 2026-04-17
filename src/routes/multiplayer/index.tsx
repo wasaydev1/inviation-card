@@ -1,6 +1,6 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useInviteFriend } from "@/components/layout/InviteFriendContext";
 import { SiteHeader } from "@/components/layout/SiteHeader";
-import { generateRoomId } from "@/lib/live-race";
 
 export const Route = createFileRoute("/multiplayer/")({
   head: () => ({
@@ -16,12 +16,7 @@ export const Route = createFileRoute("/multiplayer/")({
 });
 
 function FriendRaceLobby() {
-  const navigate = useNavigate();
-
-  function createRoom() {
-    const id = generateRoomId();
-    navigate({ to: "/multiplayer/$roomId", params: { roomId: id } });
-  }
+  const { openInvite } = useInviteFriend();
 
   return (
     <div className="min-h-screen">
@@ -39,10 +34,10 @@ function FriendRaceLobby() {
         <div className="rounded-2xl border border-border bg-surface/60 backdrop-blur p-8 shadow-elevated space-y-6">
           <button
             type="button"
-            onClick={createRoom}
+            onClick={openInvite}
             className="w-full rounded-xl bg-gradient-primary text-primary-foreground font-bold px-6 py-4 glow-cyan hover:opacity-90 transition text-lg"
           >
-            Create invite link →
+            Create invite · room code →
           </button>
           <p className="text-sm text-muted-foreground text-center">
             Opens a room with a shareable URL (1v1, two typists max).
