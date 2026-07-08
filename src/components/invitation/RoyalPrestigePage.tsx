@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronDown, Globe, Heart, Volume2, VolumeX } from "lucide-react";
 
+import { ScratchToReveal } from "@/components/invitation/ScratchToReveal";
+
 type Phase = "sealed" | "opening" | "overlay" | "revealed";
 
 /** Overlay starts when curtain scene begins (~72% of video) */
@@ -48,6 +50,8 @@ const COPY = {
     intro:
       "With hearts full of love and joy, we warmly invite you to share in the celebration of our union. Your presence would mean the world to us.",
     countdown: "Counting Down to Forever",
+    scratchTitle: "Scratch to Reveal",
+    invited: "You're Invited!",
     program: "Program Timeline",
     venue: "Venue",
     viewMap: "View on Google Maps",
@@ -65,6 +69,8 @@ const COPY = {
     intro:
       "محبت اور خوشی سے بھرے دل کے ساتھ، ہم آپ کو اپنی شادی کی خوشی میں شامل ہونے کی دعوت دیتے ہیں۔ آپ کی موجودگی ہمارے لیے سب سے بڑی خوشی ہوگی۔",
     countdown: "ہمیشہ کے لیے الٹی گنتی",
+    scratchTitle: "کھرچ کر دیکھیں",
+    invited: "آپ مدعو ہیں!",
     program: "تقریب کا شیڈول",
     venue: "مقام",
     viewMap: "گوگل میپ پر دیکھیں",
@@ -285,6 +291,16 @@ export function RoyalPrestigePage() {
             <p className="font-invitation-serif mx-auto max-w-2xl text-center text-lg italic leading-relaxed text-[#5c4a42] md:text-xl">
               {t.intro}
             </p>
+          </InvitationSection>
+
+          <InvitationSection className="bg-[#fdeef4]">
+            <ScratchToReveal
+              title={t.scratchTitle}
+              invited={t.invited}
+              date={EVENT.date}
+              day={EVENT.day}
+              time={EVENT.time}
+            />
           </InvitationSection>
 
           <InvitationSection className="bg-[#f3ebe4]">

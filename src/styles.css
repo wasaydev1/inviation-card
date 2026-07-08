@@ -366,4 +366,64 @@
     color: rgba(245, 230, 224, 0.78);
     text-shadow: rgba(0, 0, 0, 0.6) 0px 1px 6px;
   }
+
+  .font-invitation-display {
+    font-family: var(--font-invitation-display);
+  }
+
+  .scratch-reveal-heart {
+    aspect-ratio: 1;
+    max-width: 280px;
+  }
+
+  .scratch-reveal-canvas {
+    filter: drop-shadow(0 6px 20px rgba(122, 51, 64, 0.12));
+  }
+
+  .scratch-reveal--complete {
+    min-height: 360px;
+    background: #fdeef4;
+    border-radius: 0;
+  }
+
+  @keyframes scratch-confetti-fall {
+    0% {
+      transform: translateY(-10%) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(110vh) rotate(720deg);
+      opacity: 0.6;
+    }
+  }
+
+  .scratch-confetti-piece {
+    position: absolute;
+    top: -12px;
+    opacity: 0.85;
+    animation: scratch-confetti-fall linear infinite;
+  }
+
+  .scratch-confetti-piece--circle {
+    border-radius: 50%;
+  }
+
+  .scratch-confetti-piece--rect {
+    border-radius: 1px;
+  }
+
+  @keyframes scratch-complete-enter {
+    from {
+      opacity: 0;
+      transform: scale(0.92) translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  .scratch-reveal-complete-enter {
+    animation: scratch-complete-enter 0.8s cubic-bezier(0.19, 1, 0.22, 1) both;
+  }
 }
