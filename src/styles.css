@@ -426,4 +426,28 @@
   .scratch-reveal-complete-enter {
     animation: scratch-complete-enter 0.8s cubic-bezier(0.19, 1, 0.22, 1) both;
   }
+
+  .invitation-welcome-section {
+    background: linear-gradient(
+      180deg,
+      #2e2e36 0%,
+      #453840 28%,
+      #8a6d74 58%,
+      #c9aab0 82%,
+      #e5d0d4 100%
+    );
+  }
+
+  .invitation-gallery-dot {
+    height: 8px;
+    width: 8px;
+    border-radius: 9999px;
+    background: #9ca3af;
+    transition: all 0.3s ease;
+  }
+
+  .invitation-gallery-dot--active {
+    width: 28px;
+    background: #c94a5a;
+  }
 }

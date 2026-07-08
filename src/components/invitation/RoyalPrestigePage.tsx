@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronDown, Globe, Heart, Volume2, VolumeX } from "lucide-react";
 
 import { ScratchToReveal } from "@/components/invitation/ScratchToReveal";
+import { InvitationGallery } from "@/components/invitation/InvitationGallery";
 
 type Phase = "sealed" | "opening" | "overlay" | "revealed";
 
@@ -48,7 +49,7 @@ const COPY = {
     welcome: "We are honored to welcome you to\nthe Wedding ceremony of..",
     scroll: "Scroll",
     intro:
-      "With hearts full of love and joy, we warmly invite you to share in the celebration of our union. Your presence would mean the world to us.",
+      "We are honored to welcome you to the Wedding ceremony of Veer & Zara. As they begin their journey together in faith and love, we thank you for being part of this blessed occasion.",
     countdown: "Counting Down to Forever",
     scratchTitle: "Scratch to Reveal",
     invited: "You're Invited!",
@@ -67,7 +68,7 @@ const COPY = {
     welcome: "ہم آپ کو اپنی شادی کی تقریب میں خوش آمدید کہتے ہوئے اعزاز محسوس کرتے ہیں..",
     scroll: "نیچے دیکھیں",
     intro:
-      "محبت اور خوشی سے بھرے دل کے ساتھ، ہم آپ کو اپنی شادی کی خوشی میں شامل ہونے کی دعوت دیتے ہیں۔ آپ کی موجودگی ہمارے لیے سب سے بڑی خوشی ہوگی۔",
+      "ہم آپ کو ویر اور زارا کی شادی کی تقریب میں خوش آمدید کہتے ہوئے اعزاز محسوس کرتے ہیں۔ جیسے وہ ایمان اور محبت میں اپنا سفر ایک ساتھ شروع کرتے ہیں، اس مبارک موقع کا حصہ بننے کے لیے ہم آپ کے شکر گزار ہیں۔",
     countdown: "ہمیشہ کے لیے الٹی گنتی",
     scratchTitle: "کھرچ کر دیکھیں",
     invited: "آپ مدعو ہیں!",
@@ -287,10 +288,17 @@ export function RoyalPrestigePage() {
 
       {phase === "revealed" && (
         <div className="relative z-10">
-          <InvitationSection className="bg-[#faf7f4]">
-            <p className="font-invitation-serif mx-auto max-w-2xl text-center text-lg italic leading-relaxed text-[#5c4a42] md:text-xl">
-              {t.intro}
+          <InvitationSection className="invitation-welcome-section !px-6 !py-20 md:!py-28">
+            <WelcomeDivider />
+            <p className="font-invitation-serif mx-auto mt-8 max-w-2xl text-center text-base italic leading-relaxed text-white/95 md:text-lg">
+              {lang === "en"
+                ? `We are honored to welcome you to the Wedding ceremony of ${COUPLE.groom.name} & ${COUPLE.bride.name}. As they begin their journey together in faith and love, we thank you for being part of this blessed occasion.`
+                : t.intro}{" "}
+              <Heart className="mb-0.5 inline h-3.5 w-3.5 fill-[#f5b8c4] text-[#f5b8c4]" strokeWidth={0} />
             </p>
+            <div className="mt-8">
+              <WelcomeDivider />
+            </div>
           </InvitationSection>
 
           <InvitationSection className="bg-[#fdeef4]">
@@ -301,6 +309,10 @@ export function RoyalPrestigePage() {
               day={EVENT.day}
               time={EVENT.time}
             />
+          </InvitationSection>
+
+          <InvitationSection className="bg-[#fdf2f2]">
+            <InvitationGallery />
           </InvitationSection>
 
           <InvitationSection className="bg-[#f3ebe4]">
@@ -377,6 +389,16 @@ export function RoyalPrestigePage() {
           </ScrollRevealSection>
         </div>
       )}
+    </div>
+  );
+}
+
+function WelcomeDivider() {
+  return (
+    <div className="flex items-center justify-center gap-3">
+      <div className="h-px w-16 bg-[#f5b8c4]/70" />
+      <Heart className="h-2.5 w-2.5 fill-[#f5b8c4] text-[#f5b8c4]" strokeWidth={0} />
+      <div className="h-px w-16 bg-[#f5b8c4]/70" />
     </div>
   );
 }
