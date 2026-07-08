@@ -140,7 +140,9 @@ const COPY = {
     message: "Your Message",
     messagePlaceholder: "Write your wishes...",
     send: "Send Message",
+    sending: "Sending...",
     sent: "Message Sent!",
+    error: "Something went wrong. Please try again.",
     closing: "We can't wait to celebrate with you!",
     credits: "Created with Zareqia • Create your own wedding invitation",
     days: "Days",
@@ -198,7 +200,9 @@ const COPY = {
     message: "آپ کا پیغام",
     messagePlaceholder: "اپنی دعائیں لکھیں...",
     send: "پیغام بھیجیں",
+    sending: "بھیجا جا رہا ہے...",
     sent: "پیغام بھیج دیا گیا!",
+    error: "کچھ غلط ہو گیا۔ براہ کرم دوبارہ کوشش کریں۔",
     closing: "ہم آپ کے ساتھ جشن منانے کا بے صبری سے انتظار کر رہے ہیں!",
     credits: "Zareqia کے ساتھ بنایا گیا • اپنی شادی کی دعوت نامہ بنائیں",
     days: "دن",
@@ -504,8 +508,11 @@ export function RoyalPrestigePage() {
                 message: t.message,
                 messagePlaceholder: t.messagePlaceholder,
                 send: t.send,
+                sending: t.sending,
                 sent: t.sent,
+                error: t.error,
               }}
+              subject={`Wedding RSVP - ${COUPLE.groom.name} & ${COUPLE.bride.name}`}
             />
           </InvitationSection>
 
