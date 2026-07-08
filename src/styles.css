@@ -451,6 +451,16 @@
     background: #c94a5a;
   }
 
+  .invitation-gallery-fade-image {
+    opacity: 0;
+    transition: opacity 1.2s ease-in-out;
+    will-change: opacity;
+  }
+
+  .invitation-gallery-fade-image--active {
+    opacity: 1;
+  }
+
   .invitation-countdown-box {
     border: 1px solid rgba(201, 160, 168, 0.55);
     border-radius: 0.75rem;

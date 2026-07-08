@@ -12,7 +12,7 @@ type Props = {
 const SIZE = 280;
 const SCRATCH_BRUSH = 26;
 const CLIP_ID = "scratch-heart-clip";
-const REVEAL_THRESHOLD = 0.48;
+const REVEAL_THRESHOLD = 0.8;
 
 const HEART_CLIP_PATH =
   "M0.5,0.28 C0.5,0.1 0.1,0.108 0.1,0.308 C0.1,0.508 0.5,0.788 0.5,0.868 C0.5,0.788 0.9,0.508 0.9,0.308 C0.9,0.108 0.5,0.1 0.5,0.28 Z";
