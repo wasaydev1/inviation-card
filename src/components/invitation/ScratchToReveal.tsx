@@ -89,14 +89,7 @@ function drawGlitterHeart(ctx: CanvasRenderingContext2D) {
   }
 
   ctx.restore();
-
-  ctx.save();
-  traceHeartPath(ctx);
-  ctx.strokeStyle = "#7a3340";
-  ctx.lineWidth = 2.2;
-  ctx.lineJoin = "round";
-  ctx.stroke();
-  ctx.restore();
+  /* Border is a separate SVG layer so scratching never erases it */
 }
 
 function getScratchPercent(canvas: HTMLCanvasElement) {
@@ -127,6 +120,67 @@ function getPoint(canvas: HTMLCanvasElement, e: React.PointerEvent<HTMLCanvasEle
     x: (e.clientX - rect.left) * scaleX,
     y: (e.clientY - rect.top) * scaleY,
   };
+}
+
+function ScratchHeartBorder() {
+  return (
+    <svg
+      viewBox={`0 0 ${SIZE} ${SIZE}`}
+      className="pointer-events-none absolute inset-0 z-20 h-full w-full"
+      aria-hidden
+    >
+      <path
+        d={HEART_SVG_PATH}
+        fill="none"
+        stroke="#7a3340"
+        strokeWidth="2.2"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function ScratchContent({
+  invited,
+  date,
+  day,
+  time,
+  clipStyle,
+}: {
+  invited: string;
+  date: string;
+  day: string;
+  time: string;
+  clipStyle: React.CSSProperties;
+}) {
+  const patternId = useMemo(() => `scratch-grid-${Math.random().toString(36).slice(2, 9)}`, []);
+
+  return (
+    <div className="absolute inset-0 z-0" style={clipStyle}>
+      <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="absolute inset-0 h-full w-full" aria-hidden>
+        <defs>
+          <pattern id={patternId} width="10" height="10" patternUnits="userSpaceOnUse">
+            <rect width="10" height="10" fill="rgba(255,252,253,0.98)" />
+            <path
+              d="M-1,1 l2,-2 M0,10 l10,-10 M9,11 l2,-2"
+              stroke="rgba(185,130,145,0.2)"
+              strokeWidth="0.8"
+            />
+          </pattern>
+        </defs>
+        <path d={HEART_SVG_PATH} fill={`url(#${patternId})`} />
+      </svg>
+
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
+        <p className="font-dancing text-xl italic text-[#b85c6e] md:text-2xl">{invited}</p>
+        <p className="font-invitation-display mt-1 text-lg font-bold text-[#3d2a30] md:text-xl">
+          {date}
+        </p>
+        <p className="font-invitation-serif mt-1 text-base italic text-[#b85c6e]">{day}</p>
+        <p className="font-invitation-serif mt-1.5 text-sm text-[#5c4a42]">{time}</p>
+      </div>
+    </div>
+  );
 }
 
 function Confetti() {
@@ -325,19 +379,19 @@ export function ScratchToReveal({ title, invited, date, day, time }: Props) {
       </div>
 
       <div className="scratch-reveal-heart relative mx-auto aspect-square w-full max-w-[280px]">
-        <div
-          className="scratch-reveal-content absolute inset-0 flex flex-col items-center justify-center px-6 text-center opacity-0"
-          style={clipStyle}
-          aria-hidden
-        >
-          <p className="font-invitation-display text-lg font-semibold">{date}</p>
-        </div>
+        <ScratchContent
+          invited={invited}
+          date={date}
+          day={day}
+          time={time}
+          clipStyle={clipStyle}
+        />
 
         <canvas
           ref={canvasRef}
           width={SIZE}
           height={SIZE}
-          className="scratch-reveal-canvas absolute inset-0 h-full w-full cursor-crosshair touch-none"
+          className="scratch-reveal-canvas absolute inset-0 z-10 h-full w-full cursor-crosshair touch-none"
           style={clipStyle}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
@@ -346,6 +400,8 @@ export function ScratchToReveal({ title, invited, date, day, time }: Props) {
           onDoubleClick={markComplete}
           aria-label={title}
         />
+
+        <ScratchHeartBorder />
       </div>
 
       <p className="font-invitation-serif mt-4 text-xs text-[#9b7a82]">
