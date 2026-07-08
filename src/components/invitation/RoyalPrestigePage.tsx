@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronDown, Globe, Heart, Volume2, VolumeX } from "lucide-react";
+import { Building2, Car, ChevronDown, Gift, Globe, Heart, Volume2, VolumeX } from "lucide-react";
 
 import { ScratchToReveal } from "@/components/invitation/ScratchToReveal";
 import { InvitationGallery } from "@/components/invitation/InvitationGallery";
@@ -7,6 +7,13 @@ import {
   getWeddingCountdownTarget,
   InvitationCountdown,
 } from "@/components/invitation/InvitationCountdown";
+import { InvitationClosing } from "@/components/invitation/InvitationClosing";
+import { InvitationDetailSection } from "@/components/invitation/InvitationDetailSection";
+import { InvitationDressCode } from "@/components/invitation/InvitationDressCode";
+import { InvitationFooter } from "@/components/invitation/InvitationFooter";
+import { InvitationMessageForm } from "@/components/invitation/InvitationMessageForm";
+import { InvitationPreWeddingEvents } from "@/components/invitation/InvitationPreWeddingEvents";
+import { InvitationProgramTimeline } from "@/components/invitation/InvitationProgramTimeline";
 
 type Phase = "sealed" | "opening" | "overlay" | "revealed";
 
@@ -42,13 +49,55 @@ const EVENT = {
 
 const WEDDING_COUNTDOWN_TARGET = getWeddingCountdownTarget(EVENT.date, EVENT.time);
 
-const TIMELINE = [
-  { title: "Guest Arrival", time: "Jun 15, 2026, 4:00 PM" },
-  { title: "Wedding Ceremony", time: "Jun 15, 2026, 5:00 PM" },
-  { title: "Cocktail Hour", time: "Jun 15, 2026, 6:30 PM" },
-  { title: "Dinner Reception", time: "Jun 15, 2026, 7:00 PM" },
-  { title: "Dance & Celebration", time: "Jun 15, 2026, 9:00 PM" },
-];
+const TIMELINE = {
+  en: [
+    {
+      title: "Guest Arrival",
+      time: "September 30, 2026, 10:00 AM",
+      description: "We Warmly welcome you.. !",
+    },
+    {
+      title: "Wedding Ceremony",
+      time: "September 30, 2026, 10:30 AM",
+      description: "Your gracious presence is requested ❤️",
+    },
+    {
+      title: "Reception",
+      time: "October 2, 2026, 7:30 PM",
+      description: "Your gracious presence is requested at the Reception at 7:30 PM onwards.",
+    },
+  ],
+  ur: [
+    {
+      title: "مہمانوں کا استقبال",
+      time: "30 ستمبر 2026، صبح 10:00 بجے",
+      description: "ہم آپ کا گرم جوشی سے استقبال کرتے ہیں.. !",
+    },
+    {
+      title: "شادی کی تقریب",
+      time: "30 ستمبر 2026، صبح 10:30 بجے",
+      description: "آپ کی باعزت موجودگی کی درخواست ہے ❤️",
+    },
+    {
+      title: "استقبالیہ",
+      time: "2 اکتوبر 2026، شام 7:30 بجے",
+      description: "استقبالیہ میں شام 7:30 بجے سے آپ کی باعزت موجودگی کی درخواست ہے۔",
+    },
+  ],
+};
+
+const PRE_WEDDING_EVENTS = {
+  en: [
+    { title: "Mahendi", time: "Jun 27, 2026, 9:30 PM", location: "At Bride's House" },
+    { title: "Haldi", time: "Jun 28, 2026, 8:30 PM", location: "At Groom's House" },
+    { title: "Sangeet", time: "Jun 29, 2026, 9:00 PM", location: "At The Taj Mahal Palace" },
+  ],
+  ur: [
+    { title: "مہندی", time: "27 جون 2026، رات 9:30 بجے", location: "دلہن کے گھر" },
+    { title: "ہلدی", time: "28 جون 2026، رات 8:30 بجے", location: "دولہے کے گھر" },
+    { title: "سنگیت", time: "29 جون 2026، رات 9:00 بجے", location: "تاج محل پیلس میں" },
+  ],
+};
 
 const COPY = {
   en: {
@@ -63,12 +112,35 @@ const COPY = {
     venue: "Venue",
     viewMap: "View on Google Maps",
     dressCode: "Dress Code",
+    preWeddingEvents: "Pre-Wedding Events",
+    transportation: "Transportation",
+    transportationDesc:
+      "Shuttle service will be available from the city center to the venue. Pickup point: Central Station at 3:30 PM.",
+    accommodation: "Accommodation",
+    accommodationDesc:
+      "Special rates at The Taj Mahal Palace (5 min from venue). Use code WEDDING2026 when booking.",
     womenDress: "Elegant formal attire in pastel or jewel tones",
     menDress: "Suit or traditional formal wear",
     women: "Women",
     men: "Men",
-    gifts: "Your love, blessings, and presence are the greatest gifts we could ever ask for.",
-    footer: "We can't wait to celebrate with you!",
+    gifts: "Gifts",
+    giftsDesc: "Your love, blessings, and presence are the greatest gifts we could ever ask for.",
+    sendMessage: "Send a Message",
+    yourName: "Your Name",
+    namePlaceholder: "Your full name",
+    email: "Email",
+    emailPlaceholder: "you@example.com",
+    attending: "Will you be attending?",
+    attendingPlaceholder: "Select...",
+    attendingYes: "Yes, I'll be there",
+    attendingNo: "Sorry, can't make it",
+    attendingMaybe: "Not sure yet",
+    message: "Your Message",
+    messagePlaceholder: "Write your wishes...",
+    send: "Send Message",
+    sent: "Message Sent!",
+    closing: "We can't wait to celebrate with you!",
+    credits: "Created with Zareqia • Create your own wedding invitation",
     days: "Days",
     hours: "Hours",
     minutes: "Minutes",
@@ -86,12 +158,35 @@ const COPY = {
     venue: "مقام",
     viewMap: "گوگل میپ پر دیکھیں",
     dressCode: "لباس کا کوڈ",
+    preWeddingEvents: "شادی سے پہلے کی تقریبات",
+    transportation: "نقل و حمل",
+    transportationDesc:
+      "شہر کے مرکز سے مقام تک شٹل سروس دستیاب ہوگی۔ پک اپ پوائنٹ: سینٹرل اسٹیشن، شام 3:30 بجے۔",
+    accommodation: "قیام",
+    accommodationDesc:
+      "تاج محل پیلس میں خصوصی نرخ (مقام سے 5 منٹ)۔ بکنگ کے وقت WEDDING2026 کوڈ استعمال کریں۔",
     womenDress: "پیسٹل یا جیول ٹونز میں خوبصورت رسمی لباس",
     menDress: "سوٹ یا روایتی رسمی لباس",
     women: "خواتین",
     men: "مرد",
-    gifts: "آپ کی محبت، دعائیں اور موجودگی ہمارے لیے سب سے بڑا تحفہ ہے۔",
-    footer: "ہم آپ کے ساتھ جشن منانے کا بے صبری سے انتظار کر رہے ہیں!",
+    gifts: "تحائف",
+    giftsDesc: "آپ کی محبت، دعائیں اور موجودگی ہمارے لیے سب سے بڑا تحفہ ہے۔",
+    sendMessage: "پیغام بھیجیں",
+    yourName: "آپ کا نام",
+    namePlaceholder: "آپ کا پورا نام",
+    email: "ای میل",
+    emailPlaceholder: "you@example.com",
+    attending: "کیا آپ شرکت کریں گے؟",
+    attendingPlaceholder: "منتخب کریں...",
+    attendingYes: "جی ہاں، میں آؤں گا/گی",
+    attendingNo: "معذرت، نہیں آ سکتا/سکتی",
+    attendingMaybe: "ابھی یقین نہیں",
+    message: "آپ کا پیغام",
+    messagePlaceholder: "اپنی دعائیں لکھیں...",
+    send: "پیغام بھیجیں",
+    sent: "پیغام بھیج دیا گیا!",
+    closing: "ہم آپ کے ساتھ جشن منانے کا بے صبری سے انتظار کر رہے ہیں!",
+    credits: "Zareqia کے ساتھ بنایا گیا • اپنی شادی کی دعوت نامہ بنائیں",
     days: "دن",
     hours: "گھنٹے",
     minutes: "منٹ",
@@ -320,24 +415,11 @@ export function RoyalPrestigePage() {
             />
           </InvitationSection>
 
-          <InvitationSection className="bg-[#faf7f4]">
-            <h2 className="font-invitation-serif text-center text-3xl font-medium text-[#4a3a34] md:text-4xl">
-              {t.program}
-            </h2>
-            <div className="mx-auto mt-10 max-w-xl space-y-4">
-              {TIMELINE.map((item) => (
-                <div
-                  key={item.title}
-                  className="rounded-2xl border border-[#e8ddd4] bg-white/70 px-5 py-4 text-center shadow-sm"
-                >
-                  <div className="font-invitation-serif text-lg font-medium text-[#4a3a34]">{item.title}</div>
-                  <div className="mt-1 text-sm text-[#7a655c]">{item.time}</div>
-                </div>
-              ))}
-            </div>
+          <InvitationSection className="bg-[#fde2e4]">
+            <InvitationProgramTimeline title={t.program} items={TIMELINE[lang]} />
           </InvitationSection>
 
-          <InvitationSection className="bg-[#f3ebe4]">
+          <InvitationSection className="bg-[#FDF2F2]">
             <h2 className="font-invitation-serif text-center text-3xl font-medium text-[#4a3a34] md:text-4xl">
               {t.venue}
             </h2>
@@ -358,28 +440,67 @@ export function RoyalPrestigePage() {
             </div>
           </InvitationSection>
 
-          <InvitationSection className="bg-[#faf7f4]">
-            <h2 className="font-invitation-serif text-center text-3xl font-medium text-[#4a3a34] md:text-4xl">
-              {t.dressCode}
-            </h2>
-            <div className="mx-auto mt-10 grid max-w-2xl gap-6 md:grid-cols-2">
-              <DressCard title={t.women} description={t.womenDress} />
-              <DressCard title={t.men} description={t.menDress} />
-            </div>
+          <InvitationSection className="bg-[#fce4ec]">
+            <InvitationDressCode
+              title={t.dressCode}
+              women={{ title: t.women, description: t.womenDress }}
+              men={{ title: t.men, description: t.menDress }}
+            />
           </InvitationSection>
 
-          <InvitationSection className="bg-[#f3ebe4]">
-            <p className="font-invitation-serif mx-auto max-w-xl text-center text-lg italic leading-relaxed text-[#5c4a42]">
-              {t.gifts}
-            </p>
+          <InvitationSection className="bg-[#fde9ea]">
+            <InvitationPreWeddingEvents title={t.preWeddingEvents} events={PRE_WEDDING_EVENTS[lang]} />
           </InvitationSection>
 
-          <ScrollRevealSection className="bg-[#ebe2da] px-6 py-14 text-center">
-            <p className="font-invitation-script text-4xl text-[#8b6f5c] md:text-5xl">
-              {COUPLE.groom.name} & {COUPLE.bride.name}
-            </p>
-            <p className="font-invitation-serif mt-4 text-[#5c4a42]">{t.footer}</p>
-          </ScrollRevealSection>
+          <InvitationSection className="bg-[#fde2e4]">
+            <InvitationDetailSection
+              icon={Car}
+              title={t.transportation}
+              description={t.transportationDesc}
+            />
+          </InvitationSection>
+
+          <InvitationSection className="bg-[#fff9fa]">
+            <InvitationDetailSection
+              icon={Building2}
+              title={t.accommodation}
+              description={t.accommodationDesc}
+            />
+          </InvitationSection>
+
+          <InvitationSection className="bg-[#f8e1e7]">
+            <InvitationDetailSection icon={Gift} title={t.gifts} description={t.giftsDesc} />
+          </InvitationSection>
+
+          <InvitationSection className="bg-[#fdf5f5]">
+            <InvitationMessageForm
+              labels={{
+                title: t.sendMessage,
+                yourName: t.yourName,
+                namePlaceholder: t.namePlaceholder,
+                email: t.email,
+                emailPlaceholder: t.emailPlaceholder,
+                attending: t.attending,
+                attendingPlaceholder: t.attendingPlaceholder,
+                attendingYes: t.attendingYes,
+                attendingNo: t.attendingNo,
+                attendingMaybe: t.attendingMaybe,
+                message: t.message,
+                messagePlaceholder: t.messagePlaceholder,
+                send: t.send,
+                sent: t.sent,
+              }}
+            />
+          </InvitationSection>
+
+          <InvitationSection className="bg-[#f7e1e5] !py-20 md:!py-28">
+            <InvitationClosing
+              message={t.closing}
+              coupleNames={`${COUPLE.groom.name} & ${COUPLE.bride.name}`}
+            />
+          </InvitationSection>
+
+          <InvitationFooter coupleNames={`${COUPLE.groom.name} & ${COUPLE.bride.name}`} credits={t.credits} />
         </div>
       )}
     </div>
@@ -437,33 +558,5 @@ function InvitationSection({
     >
       <div className="mx-auto max-w-4xl">{children}</div>
     </section>
-  );
-}
-
-function ScrollRevealSection({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  const { ref, visible } = useScrollReveal();
-
-  return (
-    <section
-      ref={ref}
-      className={`invitation-scroll-reveal ${visible ? "invitation-scroll-reveal-visible" : ""} ${className}`}
-    >
-      {children}
-    </section>
-  );
-}
-
-function DressCard({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="rounded-2xl border border-[#e8ddd4] bg-white/80 p-6 text-center shadow-sm">
-      <h3 className="font-invitation-serif text-xl font-medium text-[#4a3a34]">{title}</h3>
-      <p className="font-invitation-serif mt-3 text-sm leading-relaxed text-[#7a655c]">{description}</p>
-    </div>
   );
 }

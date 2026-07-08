@@ -456,4 +456,29 @@
     border-radius: 0.75rem;
     background: rgba(245, 220, 224, 0.65);
   }
+
+  .invitation-form-field {
+    border: 1px solid rgba(201, 160, 168, 0.55);
+    border-radius: 0.5rem;
+    background: #fff;
+    padding: 0.625rem 0.875rem;
+    font-family: var(--font-invitation-serif);
+    font-size: 0.875rem;
+    color: #4a2a32;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .invitation-form-field::placeholder {
+    color: rgba(74, 42, 50, 0.4);
+  }
+
+  .invitation-form-field:focus {
+    border-color: rgba(163, 73, 81, 0.65);
+  }
+
+  .invitation-form-field:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+  }
 }
