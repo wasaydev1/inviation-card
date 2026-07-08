@@ -1,6 +1,6 @@
 type Props = {
   coupleNames: string;
-  credits: string;
+  credits?: string;
 };
 
 export function InvitationFooter({ coupleNames, credits }: Props) {

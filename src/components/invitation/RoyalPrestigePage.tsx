@@ -25,18 +25,8 @@ function getVideoTiming(duration: number) {
 const OVERLAY_TO_CONTENT_MS = 900;
 
 const COUPLE = {
-  groom: {
-    name: "Veer",
-    parents: "Son of Mr. & Mrs. Khan",
-    education: "M.Tech, Phd",
-    profession: "Software Engineer",
-  },
-  bride: {
-    name: "Zara",
-    parents: "Daughter of Mr. & Mrs. Pathan",
-    education: "B.Tech, MBA",
-    profession: "Advocate, High Court",
-  },
+  groom: { name: "Veer" },
+  bride: { name: "Zara" },
 };
 
 const EVENT = {
@@ -101,11 +91,23 @@ const PRE_WEDDING_EVENTS = {
 
 const COPY = {
   en: {
+    couple: {
+      groom: {
+        parents: "Son of Mr. & Mrs. Khan",
+        education: "M.Tech, Phd",
+        profession: "Software Engineer",
+      },
+      bride: {
+        parents: "Daughter of Mr. & Mrs. Pathan",
+        education: "B.Tech, MBA",
+        profession: "Advocate, High Court",
+      },
+    },
     welcome: "We are honored to welcome you to\nthe Wedding ceremony of..",
     scroll: "Scroll",
     intro:
       "We are honored to welcome you to the Wedding ceremony of Veer & Zara. As they begin their journey together in faith and love, we thank you for being part of this blessed occasion.",
-    countdown: "Counting Down to Forever",
+    countdown: "Counting Down to the Wedding",
     scratchTitle: "Scratch to Reveal",
     invited: "You're Invited!",
     program: "Program Timeline",
@@ -147,11 +149,23 @@ const COPY = {
     seconds: "Seconds",
   },
   ur: {
+    couple: {
+      groom: {
+        parents: "مسٹر اور مسز خان کے بیٹے",
+        education: "ایم ٹیک، پی ایچ ڈی",
+        profession: "سافٹ ویئر انجینئر",
+      },
+      bride: {
+        parents: "مسٹر اور مسز پٹھان کی بیٹی",
+        education: "بی ٹیک، ایم بی اے",
+        profession: "وکیل، ہائی کورٹ",
+      },
+    },
     welcome: "ہم آپ کو اپنی شادی کی تقریب میں خوش آمدید کہتے ہوئے اعزاز محسوس کرتے ہیں..",
     scroll: "نیچے دیکھیں",
     intro:
       "ہم آپ کو ویر اور زارا کی شادی کی تقریب میں خوش آمدید کہتے ہوئے اعزاز محسوس کرتے ہیں۔ جیسے وہ ایمان اور محبت میں اپنا سفر ایک ساتھ شروع کرتے ہیں، اس مبارک موقع کا حصہ بننے کے لیے ہم آپ کے شکر گزار ہیں۔",
-    countdown: "ہمیشہ کے لیے الٹی گنتی",
+    countdown: "شادی کے لیے الٹی گنتی",
     scratchTitle: "کھرچ کر دیکھیں",
     invited: "آپ مدعو ہیں!",
     program: "تقریب کا شیڈول",
@@ -333,13 +347,14 @@ export function RoyalPrestigePage() {
                 {COUPLE.groom.name}
                 <p
                   data-couple-subtext="groom"
+                  dir={lang === "ur" ? "rtl" : "ltr"}
                   className="mx-auto mt-1 mb-3 max-w-md px-4 text-center text-sm italic leading-snug whitespace-pre-line drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] md:text-base"
                 >
-                  {COUPLE.groom.parents}
+                  {t.couple.groom.parents}
                   {"\n"}
-                  {COUPLE.groom.education}
+                  {t.couple.groom.education}
                   {"\n"}
-                  {COUPLE.groom.profession}
+                  {t.couple.groom.profession}
                 </p>
               </h1>
 
@@ -354,13 +369,14 @@ export function RoyalPrestigePage() {
                 {COUPLE.bride.name}
                 <p
                   data-couple-subtext="bride"
+                  dir={lang === "ur" ? "rtl" : "ltr"}
                   className="mx-auto mt-1 mb-3 max-w-md px-4 text-center text-sm italic leading-snug whitespace-pre-line drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] md:text-base"
                 >
-                  {COUPLE.bride.parents}
+                  {t.couple.bride.parents}
                   {"\n"}
-                  {COUPLE.bride.education}
+                  {t.couple.bride.education}
                   {"\n"}
-                  {COUPLE.bride.profession}
+                  {t.couple.bride.profession}
                 </p>
               </h1>
             </div>
@@ -500,7 +516,7 @@ export function RoyalPrestigePage() {
             />
           </InvitationSection>
 
-          <InvitationFooter coupleNames={`${COUPLE.groom.name} & ${COUPLE.bride.name}`} credits={t.credits} />
+          <InvitationFooter coupleNames={`${COUPLE.groom.name} & ${COUPLE.bride.name}`} credits="Wedding Invitation"  />
         </div>
       )}
     </div>
