@@ -3,6 +3,10 @@ import { ChevronDown, Globe, Heart, Volume2, VolumeX } from "lucide-react";
 
 import { ScratchToReveal } from "@/components/invitation/ScratchToReveal";
 import { InvitationGallery } from "@/components/invitation/InvitationGallery";
+import {
+  getWeddingCountdownTarget,
+  InvitationCountdown,
+} from "@/components/invitation/InvitationCountdown";
 
 type Phase = "sealed" | "opening" | "overlay" | "revealed";
 
@@ -29,12 +33,14 @@ const COUPLE = {
 };
 
 const EVENT = {
-  date: "June 15, 2026",
-  day: "Monday",
-  time: "5:00 PM",
+  date: "September 30, 2026",
+  day: "Wednesday",
+  time: "10:00 AM",
   venue: "The Grand Palace",
   address: "123 Royal Avenue, London",
 };
+
+const WEDDING_COUNTDOWN_TARGET = getWeddingCountdownTarget(EVENT.date, EVENT.time);
 
 const TIMELINE = [
   { title: "Guest Arrival", time: "Jun 15, 2026, 4:00 PM" },
@@ -63,6 +69,10 @@ const COPY = {
     men: "Men",
     gifts: "Your love, blessings, and presence are the greatest gifts we could ever ask for.",
     footer: "We can't wait to celebrate with you!",
+    days: "Days",
+    hours: "Hours",
+    minutes: "Minutes",
+    seconds: "Seconds",
   },
   ur: {
     welcome: "ہم آپ کو اپنی شادی کی تقریب میں خوش آمدید کہتے ہوئے اعزاز محسوس کرتے ہیں..",
@@ -82,29 +92,12 @@ const COPY = {
     men: "مرد",
     gifts: "آپ کی محبت، دعائیں اور موجودگی ہمارے لیے سب سے بڑا تحفہ ہے۔",
     footer: "ہم آپ کے ساتھ جشن منانے کا بے صبری سے انتظار کر رہے ہیں!",
+    days: "دن",
+    hours: "گھنٹے",
+    minutes: "منٹ",
+    seconds: "سیکنڈ",
   },
 };
-
-function useCountdown(target: Date) {
-  const [parts, setParts] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-
-  useEffect(() => {
-    const tick = () => {
-      const diff = Math.max(0, target.getTime() - Date.now());
-      setParts({
-        days: Math.floor(diff / 86_400_000),
-        hours: Math.floor((diff % 86_400_000) / 3_600_000),
-        minutes: Math.floor((diff % 3_600_000) / 60_000),
-        seconds: Math.floor((diff % 60_000) / 1000),
-      });
-    };
-    tick();
-    const id = window.setInterval(tick, 1000);
-    return () => window.clearInterval(id);
-  }, [target]);
-
-  return parts;
-}
 
 export function RoyalPrestigePage() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -114,7 +107,6 @@ export function RoyalPrestigePage() {
   const [muted, setMuted] = useState(true);
   const [lang, setLang] = useState<"en" | "ur">("en");
   const t = COPY[lang];
-  const countdown = useCountdown(new Date("2026-06-15T17:00:00"));
 
   const setPhaseSafe = useCallback((next: Phase) => {
     phaseRef.current = next;
@@ -315,16 +307,17 @@ export function RoyalPrestigePage() {
             <InvitationGallery />
           </InvitationSection>
 
-          <InvitationSection className="bg-[#f3ebe4]">
-            <h2 className="font-invitation-serif text-center text-3xl font-medium text-[#4a3a34] md:text-4xl">
-              {t.countdown}
-            </h2>
-            <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <CountdownUnit label="Days" value={countdown.days} />
-              <CountdownUnit label="Hours" value={countdown.hours} />
-              <CountdownUnit label="Minutes" value={countdown.minutes} />
-              <CountdownUnit label="Seconds" value={countdown.seconds} />
-            </div>
+          <InvitationSection className="bg-[#fde9ea]">
+            <InvitationCountdown
+              title={t.countdown}
+              target={WEDDING_COUNTDOWN_TARGET}
+              labels={{
+                days: t.days,
+                hours: t.hours,
+                minutes: t.minutes,
+                seconds: t.seconds,
+              }}
+            />
           </InvitationSection>
 
           <InvitationSection className="bg-[#faf7f4]">
@@ -463,19 +456,6 @@ function ScrollRevealSection({
     >
       {children}
     </section>
-  );
-}
-
-function CountdownUnit({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-2xl border border-[#e8ddd4] bg-white/80 px-4 py-6 text-center shadow-sm">
-      <div className="font-invitation-script text-4xl text-[#8b6f5c] md:text-5xl">
-        {String(value).padStart(2, "0")}
-      </div>
-      <div className="font-invitation-serif mt-2 text-xs uppercase tracking-widest text-[#7a655c]">
-        {label}
-      </div>
-    </div>
   );
 }
 
